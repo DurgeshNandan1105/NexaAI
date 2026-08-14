@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Thread from "../models/Thread.js";
 
 const MessageSchema = new mongoose.Schema({
-    roles: {
+    role: {
         type:String,
         enum:["user","assistant"],
         required: true
