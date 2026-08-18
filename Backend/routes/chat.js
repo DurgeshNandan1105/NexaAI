@@ -89,14 +89,17 @@ router.post("/chat", async(req,res) => {
         thread.messages.push({role: "user", content: message});
        }
       const assistantReply = await getGroqAPIResponse(message);
+      if (!assistantReply) {
+        return res.status(500).json({ error: "No response received from AI model" });
+      }
       thread.messages.push({role: "assistant", content: assistantReply});
       thread.updatedAt = new Date();
       await thread.save();
       res.json({reply:assistantReply});
 
     } catch(err) {
-        console.log(err);
-        res.status(500).json({error: "something went wrong"});
+        console.error("Error in /api/chat:", err);
+        res.status(500).json({error: err.message || "Something went wrong"});
     }
 });
 

@@ -8,6 +8,7 @@
     justify-content: space-between;
 }
 
+
 button {
     display: flex;
     justify-content: space-between;
@@ -16,13 +17,13 @@ button {
     padding: 10px;
     border-radius: 5px;
     background-color: transparent;
-    border: solid 0.5px rgba(255,255,255,0.5);
+    border: solid 0.5px rgba(255, 255, 255, 0.5);
     cursor: pointer;
 }
 
-.logo{
-    height:25px;
-    width:25px;
+.logo {
+    height: 25px;
+    width: 25px;
     background-color: #fff;
     border-radius: 50%;
     object-fit: cover;
@@ -33,7 +34,7 @@ button span {
 }
 
 button:hover {
-    background-color: rgba(180,180,180,0.05);
+    background-color: rgba(180, 180, 180, 0.05);
 }
 
 .history {
@@ -53,7 +54,7 @@ button:hover {
 }
 
 .history li:hover {
-    background-color: rgb(180, 180, 180, 0.05);
+    background-color: rgba(180, 180, 180, 0.05);
     border-radius: 10px;
 }
 
@@ -62,6 +63,25 @@ button:hover {
     margin: 10px;
     font-size: 14px;
     text-align: center;
-    border-top: solid 0.25px rgba(255,255,255,0.5);
+    border-top: solid 0.25px rgba(255, 255, 255, 0.5);
+}
 
+.fa-trash {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+}
+
+.history li:hover .fa-trash {
+    opacity: 1;
+    color: #fff;
+}
+
+.fa-trash:hover {
+    color: #f87171 !important;
+}
+
+.highlighted {
+    background-color: rgba(180, 180, 180, 0.05);
+    border-radius: 10px;
 }
