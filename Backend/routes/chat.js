@@ -5,11 +5,13 @@ import { optionalAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Get threads for logged in user (or guest threads)
+// Get threads for logged in user only (guests don't share global threads)
 router.get("/thread", optionalAuth, async (req, res) => {
     try {
-        const query = req.userId ? { userId: req.userId } : { userId: null };
-        const threads = await Thread.find(query).sort({ updatedAt: -1 });
+        if (!req.userId) {
+            return res.json([]);
+        }
+        const threads = await Thread.find({ userId: req.userId }).sort({ updatedAt: -1 });
         res.json(threads);
     } catch (err) {
         console.error("Fetch threads error:", err);
