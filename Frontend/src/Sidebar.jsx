@@ -104,25 +104,49 @@ function Sidebar() {
             />
 
             <section className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+                {/* Clean Top Header */}
                 <div className="sidebar-header">
-                    <button onClick={createNewChat} title="New Chat" className="newChatBtn">
+                    <div className="sidebar-brand">
                         <img src="/NexaAI1.png" alt="Nexa logo" className="logo" />
-                        <span>
-                            <i className="fa-solid fa-pen-to-square"></i>
-                        </span>
-                    </button>
+                        <span className="sidebar-brand-title">NexaAI</span>
+                    </div>
 
-                    {/* Mobile Close 'X' Button */}
+                    <div className="sidebar-header-actions">
+                        <button
+                            type="button"
+                            className="sidebar-icon-btn"
+                            onClick={createNewChat}
+                            title="New Chat"
+                            aria-label="New chat"
+                        >
+                            <i className="fa-solid fa-pen-to-square"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            className="sidebar-icon-btn mobileCloseSidebarBtn"
+                            onClick={() => setSidebarOpen && setSidebarOpen(false)}
+                            aria-label="Close sidebar"
+                            title="Close sidebar"
+                        >
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Dedicated New Chat Button */}
+                <div className="newChatWrapper">
                     <button
-                        className="mobileCloseSidebarBtn"
-                        onClick={() => setSidebarOpen && setSidebarOpen(false)}
-                        aria-label="Close sidebar"
+                        type="button"
+                        onClick={createNewChat}
+                        className="newChatActionBtn"
                     >
-                        <i className="fa-solid fa-xmark"></i>
+                        <i className="fa-solid fa-plus"></i>
+                        <span>New chat</span>
                     </button>
                 </div>
 
-                {/* history */}
+                {/* History List */}
                 <ul className="history">
                     {allThreads?.map((thread, idx) => (
                         <li
@@ -145,7 +169,7 @@ function Sidebar() {
                     ))}
                 </ul>
 
-                {/* sign */}
+                {/* Sign / Footer */}
                 <div className="sign">
                     <p>By DurgeshNandan &hearts;</p>
                 </div>

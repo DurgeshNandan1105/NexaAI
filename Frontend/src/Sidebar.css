@@ -12,47 +12,100 @@
   z-index: 100;
 }
 
+/* Sidebar Top Header */
 .sidebar-header {
   display: flex;
   align-items: center;
-}
-
-.sidebar .newChatBtn,
-.sidebar button {
-  display: flex;
   justify-content: space-between;
+  padding: 12px 14px 8px 14px;
+}
+
+.sidebar-brand {
+  display: flex;
   align-items: center;
-  margin: 10px 12px;
-  padding: 8px 12px;
+  gap: 10px;
+}
+
+.sidebar-brand .logo {
+  height: 26px;
+  width: 26px;
   border-radius: 8px;
-  background-color: transparent;
-  border: 1px solid var(--border-primary);
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: background-color 0.15s ease;
-  width: calc(100% - 24px);
-}
-
-.sidebar button:hover {
-  background-color: var(--bg-hover);
-}
-
-.logo {
-  height: 24px;
-  width: 24px;
-  border-radius: 50%;
   object-fit: cover;
 }
 
-.sidebar button span {
-  font-size: 16px;
+.sidebar-brand-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.sidebar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-icon-btn:hover {
+  background-color: var(--bg-hover);
   color: var(--text-primary);
 }
 
+.mobileCloseSidebarBtn {
+  display: none;
+}
+
+/* Dedicated New Chat Button */
+.newChatWrapper {
+  padding: 4px 12px 8px 12px;
+}
+
+.newChatActionBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.newChatActionBtn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-subtle);
+}
+
+.newChatActionBtn i {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* History List */
 .history {
   margin: 4px 8px;
   padding: 0 4px;
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--bg-secondary);
@@ -111,6 +164,7 @@
   color: #f87171 !important;
 }
 
+/* Sign / Footer */
 .sign {
   padding: 10px;
   margin: 8px 12px;
@@ -122,10 +176,6 @@
 
 /* Mobile Sidebar Drawer Styling */
 .sidebar-backdrop {
-  display: none;
-}
-
-.mobileCloseSidebarBtn {
   display: none;
 }
 
@@ -165,33 +215,7 @@
     transform: translateX(0);
   }
 
-  .sidebar-header {
-    padding-right: 10px;
-  }
-
-  .sidebar-header .newChatBtn {
-    flex: 1;
-    margin-right: 6px;
-    width: auto;
-  }
-
   .mobileCloseSidebarBtn {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .mobileCloseSidebarBtn:hover {
-    background-color: var(--bg-hover);
-    color: var(--text-primary);
   }
 }
