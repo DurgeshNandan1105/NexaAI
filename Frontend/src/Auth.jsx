@@ -1,5 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { MyContext } from "./MyContext.jsx";
+import { API_BASE_URL } from "./config.js";
 
 export default function Auth({ isOpen, onClose, initialMode = "login" }) {
   const { login } = useContext(MyContext);
@@ -54,8 +55,8 @@ export default function Auth({ isOpen, onClose, initialMode = "login" }) {
     try {
       const endpoint =
         mode === "signup"
-          ? "http://localhost:8000/api/auth/signup"
-          : "http://localhost:8000/api/auth/login";
+          ? `${API_BASE_URL}/api/auth/signup`
+          : `${API_BASE_URL}/api/auth/login`;
 
       const payload =
         mode === "signup"
