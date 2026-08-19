@@ -1,14 +1,9 @@
-* {
-    color: #ececec;
-    font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-}
-
 .app {
-    background-color: #212121;
-    display: flex;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

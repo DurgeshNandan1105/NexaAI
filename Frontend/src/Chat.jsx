@@ -1,17 +1,78 @@
 import "./Chat.css";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import { MyContext } from "./MyContext";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
 
-function Chat() {
+function CodeBlock({ children, ...props }) {
+    const [copied, setCopied] = useState(false);
+    const preRef = useRef(null);
+
+    // Look for language class in code element
+    const codeChild = React.Children.toArray(children).find(
+        (child) => React.isValidElement(child) && child.type === "code"
+    );
+    const className = codeChild?.props?.className || "";
+    const match = /language-(\w+)/.exec(className);
+    const language = match ? match[1] : "code";
+
+    const handleCopy = () => {
+        const text = preRef.current?.innerText || "";
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="code-block-wrapper">
+            <div className="code-block-header">
+                <span className="code-lang">{language}</span>
+                <button className="copy-btn" onClick={handleCopy} type="button">
+                    {copied ? (
+                        <>
+                            <i className="fa-solid fa-check"></i> Copied!
+                        </>
+                    ) : (
+                        <>
+                            <i className="fa-regular fa-clipboard"></i> Copy code
+                        </>
+                    )}
+                </button>
+            </div>
+            <pre ref={preRef} className="code-pre" {...props}>
+                {children}
+            </pre>
+        </div>
+    );
+}
+
+function TableBlock({ children, ...props }) {
+    return (
+        <div className="table-container">
+            <table {...props}>{children}</table>
+        </div>
+    );
+}
+
+const markdownComponents = {
+    table: TableBlock,
+    pre: CodeBlock,
+    a: ({ node, children, ...props }) => (
+        <a target="_blank" rel="noopener noreferrer" {...props}>
+            {children}
+        </a>
+    )
+};
+
+function Chat({ loading }) {
     const { newChat, prevChats, reply } = useContext(MyContext);
     const [latestReply, setLatestReply] = useState(null);
+    const chatEndRef = useRef(null);
 
     useEffect(() => {
-        // If there is no new reply, show previous chats normally
         if (reply === null) {
             setLatestReply(null);
             return;
@@ -22,92 +83,84 @@ function Chat() {
         // Split reply into words for typing effect
         const content = reply.split(" ");
         let idx = 0;
+        setLatestReply(content[0] || "");
 
         const interval = setInterval(() => {
-            setLatestReply(
-                content.slice(0, idx + 1).join(" ")
-            );
-
             idx++;
-
             if (idx >= content.length) {
+                setLatestReply(null); // Finish typing, render full content
                 clearInterval(interval);
+            } else {
+                setLatestReply(content.slice(0, idx + 1).join(" "));
             }
-        }, 40);
+        }, 25);
 
-        // Cleanup interval
         return () => clearInterval(interval);
+    }, [reply]);
 
-    }, [prevChats, reply]);
+    useEffect(() => {
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [prevChats, latestReply, loading]);
 
     return (
-        <>
-            {newChat && <h1>Start a New Chat!</h1>}
+        <div className="chats">
+            {newChat && (!prevChats || prevChats.length === 0) && (
+                <div className="welcomeScreen">
+                    <h1 className="welcomeTitle">What can I help with today?</h1>
+                </div>
+            )}
 
-            <div className="chats">
+            <div className="chats-inner">
+                {prevChats?.map((chat, idx) => {
+                    const isLast = idx === prevChats.length - 1;
+                    const isAssistant = chat.role === "assistant";
+                    const content =
+                        isLast && isAssistant && latestReply !== null
+                            ? latestReply
+                            : chat.content;
 
-                {/* Previous chats */}
-                {prevChats?.slice(0, -1).map((chat, idx) => (
-                    <div
-                        className={
-                            chat.role === "user"
-                                ? "userDiv"
-                                : "gptDiv"
-                        }
-                        key={idx}
-                    >
-                        {chat.role === "user" ? (
-                            <p className="userMessage">
-                                {chat.content}
-                            </p>
-                        ) : (
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                rehypePlugins={[rehypeHighlight]}
-                            >
-                                {chat.content}
-                            </ReactMarkdown>
-                        )}
+                    return (
+                        <div
+                            className={
+                                chat.role === "user" ? "userDiv" : "gptDiv"
+                            }
+                            key={idx}
+                        >
+                            {chat.role === "user" ? (
+                                <div className="userMessage">
+                                    {chat.content}
+                                </div>
+                            ) : (
+                                <div className="markdown-content">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm]}
+                                        rehypePlugins={[
+                                            rehypeRaw,
+                                            rehypeHighlight
+                                        ]}
+                                        components={markdownComponents}
+                                    >
+                                        {content}
+                                    </ReactMarkdown>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+
+                {loading && (
+                    <div className="gptDiv">
+                        <div className="typing-indicator">
+                            <span className="dot"></span>
+                            <span className="dot"></span>
+                            <span className="dot"></span>
+                        </div>
                     </div>
-                ))}
-
-                {/* Latest chat / typing effect */}
-                {prevChats?.length > 0 && (
-                    <>
-                        {latestReply === null ? (
-                            <div
-                                className="gptDiv"
-                                key="non-typing"
-                            >
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeHighlight]}
-                                >
-                                    {
-                                        prevChats[
-                                            prevChats.length - 1
-                                        ].content
-                                    }
-                                </ReactMarkdown>
-                            </div>
-                        ) : (
-                            <div
-                                className="gptDiv"
-                                key="typing"
-                            >
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeHighlight]}
-                                >
-                                    {latestReply}
-                                </ReactMarkdown>
-                            </div>
-                        )}
-                    </>
                 )}
 
+                <div ref={chatEndRef} />
             </div>
-        </>
+        </div>
     );
 }
 

@@ -1,105 +1,99 @@
 import express from "express";
 import Thread from "../models/Thread.js";
 import getGroqAPIResponse from "../utils/Groq.js";
+import { optionalAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-//test
-router.post("/test", async(req, res) => {
+// Get threads for logged in user (or guest threads)
+router.get("/thread", optionalAuth, async (req, res) => {
     try {
-        const thread = new Thread({
-            threadId: "xyz",
-            title: "Testing New Thread"
-        });
-        const response = await thread.save();
-        res.send(response);
-    } catch(err) {
-        console.log(err);
-        res.status(500).json({error: "Failed to save in DB"});
-    }
-});
-
-
-// get all threads
-router.get("/thread", async(req,res) => {
-    try{
-        const threads = await Thread.find({}).sort({updatedAt: -1});
-        //descending order of updatedAt..most recent data on top
+        const query = req.userId ? { userId: req.userId } : { userId: null };
+        const threads = await Thread.find(query).sort({ updatedAt: -1 });
         res.json(threads);
-
-    }catch(err){
-        console.log(err);
-        res.status(500).json({error: "Failed to fetch threads"});
+    } catch (err) {
+        console.error("Fetch threads error:", err);
+        res.status(500).json({ error: "Failed to fetch threads" });
     }
 });
 
-router.get("/thread/:threadId", async(req,res) => {
-    const {threadId} = req.params;
+// Get specific thread messages
+router.get("/thread/:threadId", optionalAuth, async (req, res) => {
+    const { threadId } = req.params;
 
     try {
-        const thread = await Thread.findOne({threadId});
+        const query = req.userId ? { threadId, userId: req.userId } : { threadId };
+        const thread = await Thread.findOne(query);
 
-        if(!thread) {
-            return res.status(404).json({error:"Thread not found"});
+        if (!thread) {
+            return res.status(404).json({ error: "Thread not found" });
         }
 
         res.json(thread.messages);
-
-    } catch(err) {
-        console.log(err);
-        res.status(500).json({error: "failed to fetch chat"});
+    } catch (err) {
+        console.error("Fetch chat error:", err);
+        res.status(500).json({ error: "Failed to fetch chat" });
     }
 });
 
-router.delete("/thread/:threadId", async(req,res) => {
-    const {threadId} = req.params;
+// Delete a thread
+router.delete("/thread/:threadId", optionalAuth, async (req, res) => {
+    const { threadId } = req.params;
 
     try {
-        const deletedThread = await Thread.findOneAndDelete({threadId});
+        const query = req.userId ? { threadId, userId: req.userId } : { threadId };
+        const deletedThread = await Thread.findOneAndDelete(query);
 
-        if(!deletedThread) {
-            return res.status(404).json({error: "Thread not found"});
+        if (!deletedThread) {
+            return res.status(404).json({ error: "Thread not found" });
         }
 
         res.status(200).json({
             success: "Thread deleted successfully"
         });
-
-    } catch(err) {
-        console.log(err);
-        res.status(500).json({error: "Failed to delete thread"});
+    } catch (err) {
+        console.error("Delete thread error:", err);
+        res.status(500).json({ error: "Failed to delete thread" });
     }
 });
 
-router.post("/chat", async(req,res) => {
-    const {threadId, message} = req.body;
-    if(!threadId || !message){
-        return res.status(400).json({error: "missing required fields"});
+// Post a chat message and get AI response
+router.post("/chat", optionalAuth, async (req, res) => {
+    const { threadId, message } = req.body;
+    if (!threadId || !message) {
+        return res.status(400).json({ error: "Missing required fields" });
     }
-    try{
-       let thread = await Thread.findOne({threadId});
-       if(!thread){
-        //create a new thread in db
-        thread = new Thread({
-            threadId,
-            title: message,
-            messages: [{role: "user", content: message}]
-        });
-       } else{
-        thread.messages.push({role: "user", content: message});
-       }
-      const assistantReply = await getGroqAPIResponse(message);
-      if (!assistantReply) {
-        return res.status(500).json({ error: "No response received from AI model" });
-      }
-      thread.messages.push({role: "assistant", content: assistantReply});
-      thread.updatedAt = new Date();
-      await thread.save();
-      res.json({reply:assistantReply});
 
-    } catch(err) {
+    try {
+        let thread = await Thread.findOne({ threadId });
+        if (!thread) {
+            thread = new Thread({
+                threadId,
+                userId: req.userId || null,
+                title: message.length > 30 ? message.substring(0, 30) + "..." : message,
+                messages: [{ role: "user", content: message }]
+            });
+        } else {
+            // Update thread userId if user logged in
+            if (req.userId && !thread.userId) {
+                thread.userId = req.userId;
+            }
+            thread.messages.push({ role: "user", content: message });
+        }
+
+        const assistantReply = await getGroqAPIResponse(message);
+        if (!assistantReply) {
+            return res.status(500).json({ error: "No response received from AI model" });
+        }
+
+        thread.messages.push({ role: "assistant", content: assistantReply });
+        thread.updatedAt = new Date();
+        await thread.save();
+
+        res.json({ reply: assistantReply });
+    } catch (err) {
         console.error("Error in /api/chat:", err);
-        res.status(500).json({error: err.message || "Something went wrong"});
+        res.status(500).json({ error: err.message || "Something went wrong" });
     }
 });
 

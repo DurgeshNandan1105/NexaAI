@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 const MessageSchema = new mongoose.Schema({
     role: {
-        type:String,
-        enum:["user","assistant"],
+        type: String,
+        enum: ["user", "assistant"],
         required: true
     },
-    content : {
-        type:String,
-        required:true
+    content: {
+        type: String,
+        required: true
     },
     timestamp: {
         type: Date,
@@ -22,6 +22,11 @@ const ThreadSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null
+    },
     title: {
         type: String,
         default: "New Chat"
@@ -32,8 +37,8 @@ const ThreadSchema = new mongoose.Schema({
         default: Date.now
     },
     updatedAt: {
-       type: Date,
-       default: Date.now 
+        type: Date,
+        default: Date.now 
     }
 });
 
