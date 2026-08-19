@@ -2,7 +2,7 @@ import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
 import { MyContext } from "./MyContext.jsx";
 import { useState, useContext, useRef, useEffect } from "react";
-import { API_BASE_URL } from "./config.js";
+import { API_BASE_URL, getAuthHeaders } from "./config.js";
 
 function ChatWindow() {
     const {
@@ -49,13 +49,9 @@ function ChatWindow() {
         // Immediately show the user's message in chat
         setPrevChats((prev) => [...prev, { role: "user", content: currentPrompt }]);
 
-        const token = localStorage.getItem("token");
         const options = {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {})
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
                 message: currentPrompt,
                 threadId: currThreadId

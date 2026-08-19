@@ -2,7 +2,7 @@ import "./Sidebar.css";
 import { useContext, useEffect } from "react";
 import { MyContext } from "./MyContext.jsx";
 import { v1 as uuidv1 } from "uuid";
-import { API_BASE_URL } from "./config.js";
+import { API_BASE_URL, getAuthHeaders } from "./config.js";
 
 function Sidebar() {
     const {
@@ -17,14 +17,6 @@ function Sidebar() {
         prevChats,
         user
     } = useContext(MyContext);
-
-    const getAuthHeaders = () => {
-        const token = localStorage.getItem("token");
-        return {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-        };
-    };
 
     const getAllThreads = async () => {
         try {

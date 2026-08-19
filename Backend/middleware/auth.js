@@ -14,7 +14,7 @@ export const requireAuth = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.userId = decoded.id;
+    req.userId = decoded.id ? decoded.id.toString() : null;
     req.userEmail = decoded.email;
     next();
   } catch (err) {
@@ -22,21 +22,23 @@ export const requireAuth = (req, res, next) => {
   }
 };
 
-// Optional auth middleware (Allows both guest and authenticated users)
+// Optional auth middleware (Allows logged-in users and isolated guest sessions)
 export const optionalAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  const guestId = req.headers["x-guest-id"];
+
+  req.userId = null;
+  req.guestId = guestId || null;
 
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.split(" ")[1];
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
-      req.userId = decoded.id;
+      req.userId = decoded.id ? decoded.id.toString() : null;
       req.userEmail = decoded.email;
     } catch {
       req.userId = null;
     }
-  } else {
-    req.userId = null;
   }
 
   next();

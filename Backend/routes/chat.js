@@ -5,13 +5,19 @@ import { optionalAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Get threads for logged in user only (guests don't share global threads)
+// Get threads for logged in user or isolated guest session
 router.get("/thread", optionalAuth, async (req, res) => {
     try {
-        if (!req.userId) {
+        let query;
+        if (req.userId) {
+            query = { userId: req.userId };
+        } else if (req.guestId) {
+            query = { guestId: req.guestId, userId: null };
+        } else {
             return res.json([]);
         }
-        const threads = await Thread.find({ userId: req.userId }).sort({ updatedAt: -1 });
+
+        const threads = await Thread.find(query).sort({ updatedAt: -1 });
         res.json(threads);
     } catch (err) {
         console.error("Fetch threads error:", err);
@@ -24,8 +30,7 @@ router.get("/thread/:threadId", optionalAuth, async (req, res) => {
     const { threadId } = req.params;
 
     try {
-        const query = req.userId ? { threadId, userId: req.userId } : { threadId };
-        const thread = await Thread.findOne(query);
+        const thread = await Thread.findOne({ threadId });
 
         if (!thread) {
             return res.status(404).json({ error: "Thread not found" });
@@ -43,8 +48,7 @@ router.delete("/thread/:threadId", optionalAuth, async (req, res) => {
     const { threadId } = req.params;
 
     try {
-        const query = req.userId ? { threadId, userId: req.userId } : { threadId };
-        const deletedThread = await Thread.findOneAndDelete(query);
+        const deletedThread = await Thread.findOneAndDelete({ threadId });
 
         if (!deletedThread) {
             return res.status(404).json({ error: "Thread not found" });
@@ -72,13 +76,15 @@ router.post("/chat", optionalAuth, async (req, res) => {
             thread = new Thread({
                 threadId,
                 userId: req.userId || null,
+                guestId: req.userId ? null : (req.guestId || null),
                 title: message.length > 30 ? message.substring(0, 30) + "..." : message,
                 messages: [{ role: "user", content: message }]
             });
         } else {
-            // Update thread userId if user logged in
+            // If user just logged in, link the thread to their userId
             if (req.userId && !thread.userId) {
                 thread.userId = req.userId;
+                thread.guestId = null;
             }
             thread.messages.push({ role: "user", content: message });
         }
