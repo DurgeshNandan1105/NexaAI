@@ -7,6 +7,7 @@
   align-items: center;
   padding: 1.5rem 1rem 2rem 1rem;
   scroll-behavior: smooth;
+  box-sizing: border-box;
 }
 
 .welcomeScreen {
@@ -16,6 +17,7 @@
   justify-content: center;
   min-height: 50vh;
   text-align: center;
+  padding: 0 1rem;
 }
 
 .welcomeTitle {
@@ -343,5 +345,66 @@
   40% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+
+/* Mobile Responsive Breakpoints */
+@media (max-width: 768px) {
+  .chats {
+    padding: 1rem 0.75rem 1.5rem 0.75rem;
+  }
+
+  .welcomeTitle {
+    font-size: 1.5rem;
+  }
+
+  .userDiv {
+    justify-content: flex-end;
+  }
+
+  .userMessage {
+    max-width: 88%;
+    font-size: 0.9rem;
+    padding: 8px 14px;
+    border-radius: 16px;
+  }
+
+  .gptDiv {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .markdown-content h1 {
+    font-size: 1.3rem;
+  }
+
+  .markdown-content h2 {
+    font-size: 1.15rem;
+  }
+
+  .markdown-content h3 {
+    font-size: 1.05rem;
+  }
+
+  .table-container {
+    font-size: 0.8rem;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 8px 10px;
+  }
+
+  .code-block-header {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  .code-pre {
+    padding: 10px !important;
+  }
+
+  .code-pre code {
+    font-size: 0.8rem !important;
   }
 }

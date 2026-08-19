@@ -8,9 +8,16 @@
   flex-direction: column;
   justify-content: space-between;
   border-right: 1px solid var(--border-subtle);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
 }
 
+.sidebar-header {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar .newChatBtn,
 .sidebar button {
   display: flex;
   justify-content: space-between;
@@ -23,6 +30,7 @@
   cursor: pointer;
   color: var(--text-primary);
   transition: background-color 0.15s ease;
+  width: calc(100% - 24px);
 }
 
 .sidebar button:hover {
@@ -53,7 +61,7 @@
 .history li {
   list-style-type: none;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 9px 12px;
   margin-bottom: 3px;
   font-size: 13.5px;
   border-radius: 8px;
@@ -110,4 +118,80 @@
   text-align: center;
   border-top: 1px solid var(--border-subtle);
   color: var(--text-muted);
+}
+
+/* Mobile Sidebar Drawer Styling */
+.sidebar-backdrop {
+  display: none;
+}
+
+.mobileCloseSidebarBtn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .sidebar-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1200;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 28px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    padding-right: 10px;
+  }
+
+  .sidebar-header .newChatBtn {
+    flex: 1;
+    margin-right: 6px;
+    width: auto;
+  }
+
+  .mobileCloseSidebarBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobileCloseSidebarBtn:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+  }
 }

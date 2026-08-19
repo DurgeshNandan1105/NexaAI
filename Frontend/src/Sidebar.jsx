@@ -15,7 +15,9 @@ function Sidebar() {
         setCurrThreadId,
         setPrevChats,
         prevChats,
-        user
+        user,
+        sidebarOpen,
+        setSidebarOpen
     } = useContext(MyContext);
 
     const getAllThreads = async () => {
@@ -48,10 +50,12 @@ function Sidebar() {
         setReply(null);
         setCurrThreadId(uuidv1());
         setPrevChats([]);
+        if (setSidebarOpen) setSidebarOpen(false);
     };
 
     const changeThread = async (newThreadId) => {
         setCurrThreadId(newThreadId);
+        if (setSidebarOpen) setSidebarOpen(false);
         try {
             const response = await fetch(
                 `${API_BASE_URL}/api/thread/${newThreadId}`,
@@ -92,40 +96,61 @@ function Sidebar() {
     };
 
     return (
-        <section className="sidebar">
-            <button onClick={createNewChat} title="New Chat">
-                <img src="/NexaAI1.png" alt="Nexa logo" className="logo" />
-                <span>
-                    <i className="fa-solid fa-pen-to-square"></i>
-                </span>
-            </button>
-            {/* history */}
-            <ul className="history">
-                {allThreads?.map((thread, idx) => (
-                    <li
-                        key={idx}
-                        onClick={() => changeThread(thread.threadId)}
-                        className={
-                            thread.threadId === currThreadId ? "highlighted" : ""
-                        }
+        <>
+            {/* Mobile Backdrop Overlay */}
+            <div
+                className={`sidebar-backdrop ${sidebarOpen ? "open" : ""}`}
+                onClick={() => setSidebarOpen && setSidebarOpen(false)}
+            />
+
+            <section className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+                <div className="sidebar-header">
+                    <button onClick={createNewChat} title="New Chat" className="newChatBtn">
+                        <img src="/NexaAI1.png" alt="Nexa logo" className="logo" />
+                        <span>
+                            <i className="fa-solid fa-pen-to-square"></i>
+                        </span>
+                    </button>
+
+                    {/* Mobile Close 'X' Button */}
+                    <button
+                        className="mobileCloseSidebarBtn"
+                        onClick={() => setSidebarOpen && setSidebarOpen(false)}
+                        aria-label="Close sidebar"
                     >
-                        <span className="thread-title">{thread.title}</span>
-                        <i
-                            className="fa-solid fa-trash"
-                            title="Delete Chat"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                deleteThread(thread.threadId);
-                            }}
-                        ></i>
-                    </li>
-                ))}
-            </ul>
-            {/* sign */}
-            <div className="sign">
-                <p>By DurgeshNandan &hearts;</p>
-            </div>
-        </section>
+                        <i className="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                {/* history */}
+                <ul className="history">
+                    {allThreads?.map((thread, idx) => (
+                        <li
+                            key={idx}
+                            onClick={() => changeThread(thread.threadId)}
+                            className={
+                                thread.threadId === currThreadId ? "highlighted" : ""
+                            }
+                        >
+                            <span className="thread-title">{thread.title}</span>
+                            <i
+                                className="fa-solid fa-trash"
+                                title="Delete Chat"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteThread(thread.threadId);
+                                }}
+                            ></i>
+                        </li>
+                    ))}
+                </ul>
+
+                {/* sign */}
+                <div className="sign">
+                    <p>By DurgeshNandan &hearts;</p>
+                </div>
+            </section>
+        </>
     );
 }
 

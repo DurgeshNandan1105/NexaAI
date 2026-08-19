@@ -39,7 +39,8 @@ function App() {
     }
   });
 
-  // Modal states
+  // Modal and sidebar states
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
@@ -94,6 +95,10 @@ function App() {
     theme,
     setTheme,
     toggleTheme,
+
+    // Sidebar
+    sidebarOpen,
+    setSidebarOpen,
 
     // Modals
     authModalOpen,

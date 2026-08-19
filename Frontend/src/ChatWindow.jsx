@@ -10,13 +10,15 @@ function ChatWindow() {
         setPrompt,
         setReply,
         currThreadId,
+        setCurrThreadId,
         setPrevChats,
         setNewChat,
         user,
         logout,
         setAuthModalOpen,
         setAuthMode,
-        setSettingsModalOpen
+        setSettingsModalOpen,
+        setSidebarOpen
     } = useContext(MyContext);
 
     const [loading, setLoading] = useState(false);
@@ -38,6 +40,17 @@ function ChatWindow() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isOpen]);
+
+    const handleNewChat = () => {
+        setNewChat(true);
+        setPrompt("");
+        setReply(null);
+        if (setCurrThreadId) {
+            setCurrThreadId(Date.now().toString());
+        }
+        setPrevChats([]);
+        if (setSidebarOpen) setSidebarOpen(false);
+    };
 
     const getReply = async () => {
         if (!prompt || !prompt.trim() || loading) return;
@@ -110,91 +123,117 @@ function ChatWindow() {
     return (
         <div className="chatWindow">
             <div className="navbar">
-                <span className="navTitle">
-                    NexaAI <i className="fa-solid fa-chevron-down"></i>
-                </span>
-
-                <div className="userIconDiv" ref={dropdownRef}>
-                    <div
-                        className={`userIcon ${!user ? "guest" : ""}`}
-                        onClick={handleProfileClick}
-                        title={user ? (user.email || user.name) : "Account & Settings"}
+                {/* Left Navbar: Hamburger Menu (Mobile) + Brand Title */}
+                <div className="navLeft">
+                    <button
+                        className="mobileMenuBtn"
+                        onClick={() => setSidebarOpen && setSidebarOpen((prev) => !prev)}
+                        aria-label="Toggle sidebar"
+                        title="Chat History"
+                        type="button"
                     >
-                        {user ? (
-                            user.avatar || (user.name ? user.name[0].toUpperCase() : <i className="fa-solid fa-user"></i>)
-                        ) : (
-                            <i className="fa-solid fa-user"></i>
-                        )}
-                    </div>
+                        <i className="fa-solid fa-bars"></i>
+                    </button>
 
-                    {isOpen && (
-                        <div className="dropDown">
+                    <span className="navTitle">
+                        NexaAI <i className="fa-solid fa-chevron-down"></i>
+                    </span>
+                </div>
+
+                {/* Right Navbar: New Chat (Mobile) + User Profile Menu */}
+                <div className="navRight">
+                    <button
+                        className="mobileNewChatBtn"
+                        onClick={handleNewChat}
+                        aria-label="New chat"
+                        title="New Chat"
+                        type="button"
+                    >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                    </button>
+
+                    <div className="userIconDiv" ref={dropdownRef}>
+                        <div
+                            className={`userIcon ${!user ? "guest" : ""}`}
+                            onClick={handleProfileClick}
+                            title={user ? (user.email || user.name) : "Account & Settings"}
+                        >
                             {user ? (
-                                <>
-                                    <div className="dropDownHeader">
-                                        <span className="user-name">{user.name || "NexaAI User"}</span>
-                                        <span className="user-email">{user.email}</span>
-                                    </div>
-                                    <div className="dropDownDivider"></div>
-                                    <div
-                                        className="dropDownItem"
-                                        onClick={handleOpenSettings}
-                                    >
-                                        <i className="fa-solid fa-gear"></i> Settings
-                                    </div>
-                                    <div
-                                        className="dropDownItem"
-                                        onClick={handleOpenSettings}
-                                    >
-                                        <i className="fa-solid fa-cloud-arrow-up"></i> Upgrade plan
-                                    </div>
-                                    <div className="dropDownDivider"></div>
-                                    <div
-                                        className="dropDownItem danger"
-                                        onClick={() => {
-                                            setIsOpen(false);
-                                            logout();
-                                        }}
-                                    >
-                                        <i className="fa-solid fa-arrow-right-from-bracket"></i> Log out
-                                    </div>
-                                </>
+                                user.avatar || (user.name ? user.name[0].toUpperCase() : <i className="fa-solid fa-user"></i>)
                             ) : (
-                                <>
-                                    <div className="dropDownHeader">
-                                        <span className="user-name">Guest User</span>
-                                        <span className="user-email">Not signed in</span>
-                                    </div>
-                                    <div className="dropDownDivider"></div>
-                                    <div
-                                        className="dropDownItem highlight"
-                                        onClick={() => handleOpenAuth("login")}
-                                    >
-                                        <i className="fa-solid fa-arrow-right-to-bracket"></i> Log in
-                                    </div>
-                                    <div
-                                        className="dropDownItem highlight"
-                                        onClick={() => handleOpenAuth("signup")}
-                                    >
-                                        <i className="fa-solid fa-user-plus"></i> Sign up
-                                    </div>
-                                    <div className="dropDownDivider"></div>
-                                    <div
-                                        className="dropDownItem"
-                                        onClick={handleOpenSettings}
-                                    >
-                                        <i className="fa-solid fa-gear"></i> Settings
-                                    </div>
-                                    <div
-                                        className="dropDownItem"
-                                        onClick={handleOpenSettings}
-                                    >
-                                        <i className="fa-solid fa-cloud-arrow-up"></i> Upgrade plan
-                                    </div>
-                                </>
+                                <i className="fa-solid fa-user"></i>
                             )}
                         </div>
-                    )}
+
+                        {isOpen && (
+                            <div className="dropDown">
+                                {user ? (
+                                    <>
+                                        <div className="dropDownHeader">
+                                            <span className="user-name">{user.name || "NexaAI User"}</span>
+                                            <span className="user-email">{user.email}</span>
+                                        </div>
+                                        <div className="dropDownDivider"></div>
+                                        <div
+                                            className="dropDownItem"
+                                            onClick={handleOpenSettings}
+                                        >
+                                            <i className="fa-solid fa-gear"></i> Settings
+                                        </div>
+                                        <div
+                                            className="dropDownItem"
+                                            onClick={handleOpenSettings}
+                                        >
+                                            <i className="fa-solid fa-cloud-arrow-up"></i> Upgrade plan
+                                        </div>
+                                        <div className="dropDownDivider"></div>
+                                        <div
+                                            className="dropDownItem danger"
+                                            onClick={() => {
+                                                setIsOpen(false);
+                                                logout();
+                                            }}
+                                        >
+                                            <i className="fa-solid fa-arrow-right-from-bracket"></i> Log out
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="dropDownHeader">
+                                            <span className="user-name">Guest User</span>
+                                            <span className="user-email">Not signed in</span>
+                                        </div>
+                                        <div className="dropDownDivider"></div>
+                                        <div
+                                            className="dropDownItem highlight"
+                                            onClick={() => handleOpenAuth("login")}
+                                        >
+                                            <i className="fa-solid fa-arrow-right-to-bracket"></i> Log in
+                                        </div>
+                                        <div
+                                            className="dropDownItem highlight"
+                                            onClick={() => handleOpenAuth("signup")}
+                                        >
+                                            <i className="fa-solid fa-user-plus"></i> Sign up
+                                        </div>
+                                        <div className="dropDownDivider"></div>
+                                        <div
+                                            className="dropDownItem"
+                                            onClick={handleOpenSettings}
+                                        >
+                                            <i className="fa-solid fa-gear"></i> Settings
+                                        </div>
+                                        <div
+                                            className="dropDownItem"
+                                            onClick={handleOpenSettings}
+                                        >
+                                            <i className="fa-solid fa-cloud-arrow-up"></i> Upgrade plan
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
